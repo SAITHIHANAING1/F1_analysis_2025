@@ -139,14 +139,15 @@ def get_latest_drivers():
     return df[df['year'] == latest_year].copy(), prediction_year
 
 @st.cache_resource
-def train_model(model_type, params, X, y):
-    models = {
-        "Random Forest": RandomForestClassifier(**params, random_state=42),
-        "XGBoost": XGBClassifier(**params, eval_metric="logloss", random_state=42, verbosity=0),
-        "Logistic Regression": LogisticRegression(**params, random_state=42),
-        "SVM": SVC(**params, random_state=42)
-    }
-    model = models[model_type]
+def train_model(model_type, X, y, **params):
+    if model_type == "Random Forest":
+        model = RandomForestClassifier(**params, random_state=42)
+    elif model_type == "XGBoost":
+        model = XGBClassifier(**params, eval_metric="logloss", random_state=42, verbosity=0)
+    elif model_type == "Logistic Regression":
+        model = LogisticRegression(**params, random_state=42)
+    else:
+        model = SVC(**params, random_state=42)
     model.fit(X, y)
     return model
 
@@ -172,7 +173,7 @@ try:
         elif model_type == "Logistic Regression":
             c_value = st.slider("Regularization (C)", 0.01, 10.0, 1.0, 0.1)
             params = {'C': c_value, 'max_iter': 1000}
-        else:  # SVM
+        else:
             c_value = st.slider("C Parameter", 0.1, 10.0, 1.0, 0.1)
             params = {'C': c_value, 'kernel': 'rbf', 'probability': True}
         
@@ -183,9 +184,8 @@ try:
     X_latest = latest_race[feature_cols]
     
     if train_button:
-        train_model.clear()
         with st.spinner("Analyzing historical data and generating predictions..."):
-            model = train_model(model_type, params, X, y)
+            model = train_model(model_type, X, y, **params)
             latest_probs = model.predict_proba(X_latest)[:, 1]
             
             st.session_state.update({'trained': True, 'predictions': latest_probs,
