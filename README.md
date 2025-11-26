@@ -44,23 +44,58 @@ An ensemble model combines predictions from all four approaches.
 
 ## Usage
 
-Run the scripts in order:
+### Data Preparation
+
+Run the scripts in order to prepare the data:
 
 ```bash
 python load_data.py
 python merge_data.py
 python feature_engineering.py
+```
+
+### Model Training (Optional)
+
+Train and compare models using the command line:
+
+```bash
 python modeling_lr_rf.py
 python modeling_xgb_svm.py
 python compare_models.py
 ```
 
+### Web Application 🚀
+
+Launch the interactive web interface to predict Singapore GP winners:
+
+```bash
+streamlit run app.py
+```
+
+**Features:**
+- Adjust model parameters in real-time
+- Compare different ML algorithms (Random Forest, XGBoost, SVM, Logistic Regression, Ensemble)
+- View top championship contenders with win probabilities
+- Create custom driver profiles and predict their chances
+- Download predictions as CSV
+
 ## Results
 
 Model performance metrics (ROC-AUC, accuracy, log loss) are saved in `data/model_comparison_metrics.csv`. Individual and combined predictions are available in the `data/` directory.
+
+## Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Requirements
 
 - pandas
 - scikit-learn
 - xgboost
+- streamlit
+- numpy
