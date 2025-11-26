@@ -9,7 +9,7 @@ st.set_page_config(page_title="F1 Singapore Predictor", layout="wide", initial_s
 
 with st.sidebar:
     st.write("### Appearance")
-    dark_mode = st.toggle("🌙 Dark Mode", value=False)
+    dark_mode = st.toggle(" Dark Mode", value=False)
 
 # 2. DEFINE PALETTES
 if dark_mode:
