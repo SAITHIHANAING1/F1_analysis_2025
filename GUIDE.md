@@ -9,11 +9,10 @@
    pip install -r requirements.txt
    ```
 
-3. **Ensure data is prepared** (run once):
+3. **Prepare data** (run once or when updating dataset):
    ```bash
-   python load_data.py
    python merge_data.py
-   python feature_engineering.py
+   python create_training_data.py
    ```
 
 4. **Launch the web app**:
@@ -25,36 +24,60 @@
 
 ## Using the App
 
-### 1. Select Your Model
-- Choose from 5 algorithms: Random Forest, XGBoost, Logistic Regression, SVM, or Ensemble
-- Adjust model parameters using the sliders
+### 1. Theme Selection
+- Toggle between Dark Mode and Light Mode using the 🌙 button in the sidebar
+- Clean black and white design for optimal readability
 
-### 2. Train the Model
-- Click "Train Model" button in the sidebar
-- Wait for training to complete (~5-10 seconds)
+### 2. Select Your Model
+- Choose from 4 algorithms: XGBoost, Random Forest, Logistic Regression, or SVM
+- Adjust model parameters using the sliders:
+  - **XGBoost**: Learning Rate (0.05-0.2)
+  - **Random Forest**: Number of Trees (100-300)
+  - **Logistic Regression**: Regularization C (0.01-10)
+  - **SVM**: C Parameter (0.1-10)
 
-### 3. View Predictions
-- See the predicted winner at the top
-- Browse top 10 contenders with probability bars
-- Download full predictions as CSV
+### 3. Generate Predictions
+- Click "Predict Results" button in the sidebar
+- Wait for training to complete (~2-3 seconds)
 
-### 4. Custom Analysis (Optional)
-- Expand "Create Custom Profile"
-- Adjust driver statistics
-- Click "Calculate Probability" to see results
+### 4. View Results
+- See top 5 predicted drivers with win probabilities
+- View recent Singapore GP winners (2022-2024)
+- Check historical statistics: races analyzed, drivers, teams
+- Download full analysis report as CSV
+
+## Data Pipeline
+
+### Step 1: Merge Data (`merge_data.py`)
+- Combines races, results, drivers, constructors, and circuits datasets
+- Filters for Singapore GP races only
+- Creates `data/merged_singapore.csv` with 318 rows
+
+### Step 2: Create Training Data (`create_training_data.py`)
+- Generates features from historical Singapore GP data
+- Calculates driver and team statistics
+- Creates `data/training_dataset.csv` with 237 samples (2009-2024)
+
+### Step 3: Run Web App (`app.py`)
+- Trains selected ML model on historical data
+- Predicts 2025 Singapore GP top 5 finishers
+- Interactive interface with theme customization
 
 ## Features
 
-✅ **Minimalist Design** - Clean, focused interface  
+✅ **Dark/Light Theme** - Toggle between modes  
+✅ **4 ML Algorithms** - XGBoost, Random Forest, Logistic Regression, SVM  
 ✅ **Real-time Training** - Instant model updates  
-✅ **Multiple Algorithms** - Compare different ML approaches  
-✅ **Custom Predictions** - Test hypothetical scenarios  
+✅ **Parameter Tuning** - Adjust model settings interactively  
+✅ **Top 5 Predictions** - View most likely winners  
 ✅ **Export Results** - Download predictions as CSV  
+✅ **Compact Layout** - Single-page design, no scrolling  
 ✅ **Efficient Caching** - Fast performance with smart data management
 
 ## Tips
 
-- Start with **Ensemble** model for best overall accuracy
-- Use **Random Forest** for interpretable results
-- Try **XGBoost** for highest performance with tuned parameters
-- Adjust parameters and retrain to see how they affect predictions
+- Start with **XGBoost** for best accuracy
+- Use **Random Forest** for stable, interpretable results
+- Try **Logistic Regression** for fast training
+- Adjust parameters and retrain to see impact on predictions
+- Download CSV for detailed analysis of all drivers
