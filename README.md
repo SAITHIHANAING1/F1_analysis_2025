@@ -1,10 +1,31 @@
 # F1 Analysis - Singapore GP Winner Prediction
 
-A machine learning project analyzing Formula 1 race data to predict Singapore Grand Prix winners using historical performance metrics.
+A machine learning project with an interactive web interface to predict Formula 1 Singapore Grand Prix winners using historical performance data.
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Prepare data
+python load_data.py
+python merge_data.py
+python feature_engineering.py
+
+# Launch web app
+streamlit run app.py
+```
+
+Then open `http://localhost:8501` in your browser.
 
 ## Overview
 
-This project uses historical F1 race data to build predictive models for determining which drivers are most likely to win at the Singapore Grand Prix. The analysis includes feature engineering based on driver performance, team statistics, and recent form.
+This project analyzes historical F1 race data to predict Singapore GP winners. Features a clean, minimalist web interface where you can:
+- Train multiple ML models with adjustable parameters
+- View predicted winners with probability rankings
+- Create custom driver profiles for analysis
+- Compare different algorithms in real-time
 
 ## Dataset
 
