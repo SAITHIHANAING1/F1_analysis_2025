@@ -8,10 +8,10 @@ A machine learning project with an interactive web interface to predict Formula 
 # Install dependencies
 pip install -r requirements.txt
 
-# Prepare data
+# Prepare data (run in order)
 python load_data.py
 python merge_data.py
-python feature_engineering.py
+python create_training_data.py
 
 # Launch web app
 streamlit run app.py
@@ -19,13 +19,26 @@ streamlit run app.py
 
 Then open `http://localhost:8501` in your browser.
 
-## Overview
+## How It Works
 
-This project analyzes historical F1 race data to predict Singapore GP winners. Features a clean, minimalist web interface where you can:
-- Train multiple ML models with adjustable parameters
-- View predicted winners with probability rankings
-- Create custom driver profiles for analysis
-- Compare different algorithms in real-time
+### Proper Time-Series Training
+
+Unlike typical ML projects, this uses **proper temporal validation**:
+- Each race is predicted using only historical data from *before* that race
+- No data leakage - the model never sees future information
+- Features are calculated incrementally for each driver/team
+
+### Training Process
+
+1. **Data Preparation** (`create_training_data.py`)
+   - For each race year, creates features from prior history only
+   - Tracks driver performance, team strength, recent form
+   - Builds 237 driver-race combinations across 14 years (2009-2024)
+
+2. **Model Training** (in web app)
+   - Trains on all historical data
+   - Predicts the next Singapore GP winner
+   - Validates on past years to show accuracy
 
 ## Dataset
 
