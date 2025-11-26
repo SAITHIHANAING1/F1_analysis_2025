@@ -2,7 +2,7 @@
 
 Machine learning web app to predict Formula 1 Singapore Grand Prix winners using historical performance data (2009-2024).
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -79,12 +79,12 @@ Four machine learning algorithms available:
 
 ## Web Application Features
 
-- 🎨 Dark/Light theme toggle
-- ⚙️ Real-time model parameter tuning
-- 📊 Top 5 predictions with probability bars
-- 📈 Historical race statistics
-- 💾 Download full predictions as CSV
-- 🎯 Compact single-page layout
+- Dark/Light theme toggle
+- Real-time model parameter tuning
+- Top 5 predictions with probability bars
+- Historical race statistics
+- Download full predictions as CSV
+- Compact single-page layout
 
 ## Requirements
 
