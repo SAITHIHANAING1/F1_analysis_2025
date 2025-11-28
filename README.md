@@ -53,17 +53,12 @@ F1_Analysis/
 ├─ merge_data.py             # Merge F1 datasets for Singapore GP
 ├─ create_training_data.py   # Generate training features
 ├─ requirements.txt          # Python dependencies
-├─ vercel.json               # Vercel deployment config
 ├─ .gitignore                # Ignore venv, DS_Store, etc.
-│
-├─ api/
-│   └─ index.py              # Vercel serverless entry wrapper for Streamlit
-│
 ├─ data/
 │   ├─ merged_singapore.csv
 │   └─ training_dataset.csv
 │
-└─ Datasets/                 # Raw CSV files from Kaggle (optional)
+└─ Datasets/                 # Raw CSV files from Kaggle
 
 ```
 
