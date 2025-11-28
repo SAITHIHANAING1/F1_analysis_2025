@@ -105,4 +105,4 @@ Four machine learning algorithms available:
 
 ## Deployed App Link
   
-<a href=https://f1-analysis-by-zwe-sai.streamlit.app/> F1 Analysis <a/>
+<a href="https://f1-analysis-by-zwe-sai.streamlit.app/" target="_blank"> F1 Analysis <a/>
