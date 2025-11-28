@@ -47,15 +47,24 @@ https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020
 ## Project Structure
 
 ```
-F1-Analysis/
-├── app.py                    # Streamlit web application
-├── merge_data.py             # Merge F1 datasets for Singapore GP
-├── create_training_data.py   # Generate training features
-├── requirements.txt          # Python dependencies
-├── data/
-│   ├── merged_singapore.csv      # Singapore GP historical data
-│   └── training_dataset.csv      # Features for ML training
-└── Datasets/                 # Raw CSV files from Kaggle
+F1_Analysis/
+│
+├─ app.py                    # Streamlit web application (main entry)
+├─ merge_data.py             # Merge F1 datasets for Singapore GP
+├─ create_training_data.py   # Generate training features
+├─ requirements.txt          # Python dependencies
+├─ vercel.json               # Vercel deployment config
+├─ .gitignore                # Ignore venv, DS_Store, etc.
+│
+├─ api/
+│   └─ index.py              # Vercel serverless entry wrapper for Streamlit
+│
+├─ data/
+│   ├─ merged_singapore.csv
+│   └─ training_dataset.csv
+│
+└─ Datasets/                 # Raw CSV files from Kaggle (optional)
+
 ```
 
 ## Features
