@@ -103,6 +103,6 @@ Four machine learning algorithms available:
 - streamlit
 - numpy
 
-##Deployed App Link
+## Deployed App Link
   
 <a href=https://f1-analysis-by-zwe-sai.streamlit.app/> F1 Analysis <a/>
