@@ -61,6 +61,22 @@ st.markdown(
     .stMarkdown {{ margin-bottom: -0.5rem; }}
     div[data-testid="column"] {{ gap: 0.5rem; }}
 
+    /* Vertical separator ONLY between main columns (not in metrics) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {{
+        border-right: 1px solid {theme['border']};
+        padding-right: 2rem !important;
+    }}
+    
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {{
+        padding-left: 2rem !important;
+    }}
+    
+    /* Remove border from metric columns */
+    div[data-testid="stHorizontalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="column"] {{
+        border-right: none !important;
+        padding-right: 0 !important;
+    }}
+
     /* Typography */
     h1 {{ color: {theme['text_primary']}; font-weight: 700; letter-spacing: -0.03em; margin-top: 0 !important; font-size: 1.8rem !important; }}
     h2, h3 {{ color: {theme['text_primary']}; font-weight: 600; font-size: 1.1rem !important; }}
