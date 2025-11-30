@@ -16,22 +16,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---------- 2. THEME ENGINE ----------
-if "dark_mode" not in st.session_state:
-    st.session_state["dark_mode"] = False
-
-dark_mode = st.session_state["dark_mode"]
-
-# Monochrome Theme Palette
+# ---------- 2. DARK THEME ----------
 theme = {
-    "bg_main": "#000000" if dark_mode else "#ffffff",
-    "bg_panel": "#111111" if dark_mode else "#f5f5f5",
-    "card_bg": "#111111" if dark_mode else "#ffffff",
-    "text_primary": "#ffffff" if dark_mode else "#111111",
-    "text_secondary": "#cccccc" if dark_mode else "#555555",
-    "border": "#333333" if dark_mode else "#e0e0e0",
-    "accent": "#ffffff" if dark_mode else "#000000",
-    "toggle_track": "#333333" if dark_mode else "#e0e0e0", 
+    "bg_main": "#000000",
+    "bg_panel": "#111111",
+    "card_bg": "#111111",
+    "text_primary": "#ffffff",
+    "text_secondary": "#cccccc",
+    "border": "#333333",
+    "accent": "#ffffff"
 }
 
 
@@ -92,6 +85,10 @@ st.markdown(
         font-size: 1.1rem !important; 
     }}
     
+    h1 a, h2 a, h3 a {{
+        display: none !important;
+    }}
+    
     p, label, span, div {{ 
         color: {theme['text_secondary']}; 
         font-size: 0.9rem; 
@@ -117,16 +114,6 @@ st.markdown(
         padding: 0.8rem 1rem; /* Compact padding */
         margin-bottom: 0.6rem;
         transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }}
-
-    /* Toggle Switch */
-    div[data-testid="stToggle"] label div:first-child {{
-        border: 1px solid {theme['text_primary']} !important;
-        background-color: {theme['toggle_track']} !important; 
-        border-radius: 20px !important;
-    }}
-    div[data-testid="stToggle"] label div:first-child > div {{
-        background-color: {theme['text_primary']} !important;
     }}
 
     /* Buttons & Download Buttons */
@@ -269,13 +256,6 @@ try:
         </div>
         """, unsafe_allow_html=True)
         
-        # Appearance
-        st.caption("APPEARANCE")
-        st.checkbox("Dark Mode", key="dark_mode")
-        
-        # Divider
-        st.markdown(f"<div style='margin: 4px 0; border-top: 1px solid {theme['border']};'></div>", unsafe_allow_html=True)
-
         # Model Selection
         st.caption("MODEL")
         model_type = st.selectbox(
