@@ -6,258 +6,368 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from pathlib import Path
 
+# ---------- 1. CONFIGURATION ----------
 SCRIPT_DIR = Path(__file__).parent
 DATA_DIR = SCRIPT_DIR / "data"
 
-st.set_page_config(page_title="F1 Singapore Predictor", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="F1 Singapore Predictor",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
-with st.sidebar:
-    st.write("### Appearance")
-    dark_mode = st.toggle("Dark Mode", value=False)
+# ---------- 2. THEME ENGINE ----------
+if "dark_mode" not in st.session_state:
+    st.session_state["dark_mode"] = False
 
-if dark_mode:
-    theme = {
-        "bg_main": "#000000",
-        "bg_sidebar": "#111111",
-        "card_bg": "#1a1a1a",
-        "text_primary": "#ffffff",
-        "text_secondary": "#a1a1aa",
-        "border": "#27272a",
-        "shadow": "rgba(255, 255, 255, 0.1)",
-        "accent_text": "#ffffff",
-        "button_bg": "#ffffff",
-        "button_text": "#000000",
-        "metric_bg": "#1a1a1a",
-        "metric_border": "#27272a"
-    }
-else:
-    theme = {
-        "bg_main": "#ffffff",
-        "bg_sidebar": "#f4f4f5",
-        "card_bg": "#ffffff",
-        "text_primary": "#000000",
-        "text_secondary": "#52525b",
-        "border": "#e4e4e7",
-        "shadow": "rgba(0, 0, 0, 0.1)",
-        "accent_text": "#000000",
-        "button_bg": "#000000",
-        "button_text": "#ffffff",
-        "metric_bg": "#ffffff",
-        "metric_border": "#e4e4e7"
-    }
+dark_mode = st.session_state["dark_mode"]
 
-st.markdown(f"""<style>
+# Monochrome Theme Palette
+theme = {
+    "bg_main": "#000000" if dark_mode else "#ffffff",
+    "bg_panel": "#111111" if dark_mode else "#f5f5f5",
+    "card_bg": "#111111" if dark_mode else "#ffffff",
+    "text_primary": "#ffffff" if dark_mode else "#111111",
+    "text_secondary": "#cccccc" if dark_mode else "#555555",
+    "border": "#333333" if dark_mode else "#e0e0e0",
+    "accent": "#ffffff" if dark_mode else "#000000",
+    "toggle_track": "#333333" if dark_mode else "#e0e0e0", 
+}
+
+
+# ---------- 3. CSS STYLING ----------
+st.markdown(
+    f"""
+<style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    * {{font-family: 'Inter', sans-serif;}}
-
-    .stApp, .main {{background-color: {theme['bg_main']};}}
-    .main {{padding: 1rem 2rem !important; max-height: 100vh; overflow-y: auto;}}
-
-    [data-testid="stSidebar"] {{background-color: {theme['bg_sidebar']}; border-right: 1px solid {theme['border']};}}
-    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {{color: {theme['text_primary']} !important;}}
-    [data-testid="stSidebar"] label {{font-weight: 500;}}
-
-    [data-testid="stToggle"] [data-baseweb="switch"] > div {{
-        background-color: transparent !important;
-        border: 2px solid {theme['text_primary']} !important;
-        border-radius: 999px !important;
-    }}
-    [data-testid="stToggle"] [data-baseweb="switch"] > div > div {{
-        background-color: {theme['text_primary']} !important;
-    }}
-    [data-testid="stToggle"] [data-baseweb="switch"][aria-checked="true"] > div {{
-        background-color: {theme['text_primary']} !important;
-    }}
-    [data-testid="stToggle"] [data-baseweb="switch"][aria-checked="true"] > div > div {{
-        background-color: {theme['bg_sidebar']} !important;
-    }}
-
-    section[data-testid="stSidebar"] button, [data-testid="collapsedControl"] {{color: {theme['text_primary']} !important;}}
-    [data-testid="collapsedControl"] svg, section[data-testid="stSidebar"] button svg {{fill: {theme['text_primary']} !important;}}
     
-    h1 {{color: {theme['text_primary']} !important; font-size: 1.8rem !important; margin-bottom: 0.25rem !important;}}
-    h2 {{color: {theme['text_secondary']} !important; font-size: 1rem !important; margin-bottom: 1rem !important;}}
-    h3 {{color: {theme['text_primary']} !important; font-size: 1.1rem !important; margin-top: 1rem !important; margin-bottom: 0.5rem !important;}}
+    /* 1. Global Font Size Reduction (Safe alternative to Zoom) */
+    html, body, [class*="css"] {{
+        font-family: 'Inter', sans-serif;
+        font-size: 14px; /* Reduced from default 16px */
+    }}
+
+    .stApp {{ background-color: {theme['bg_main']}; }}
+
+    /* 2. Compact Layout Adjustments */
+    .block-container {{
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        max-width: 95% !important;
+    }}
+    .main {{ padding: 0rem 1rem !important; }}
     
-    .driver-card {{
-        background: {theme['card_bg']};
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        margin-bottom: 0.4rem;
-        box-shadow: 0 1px 2px {theme['shadow']};
+    /* Reduce spacing between elements */
+    .stMarkdown {{ margin-bottom: -0.5rem; }}
+    div[data-testid="column"] {{ gap: 0.5rem; }}
+
+    /* Vertical separator ONLY between main columns (not in metrics) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {{
+        border-right: 1px solid {theme['border']};
+        padding-right: 2rem !important;
+    }}
+    
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {{
+        padding-left: 2rem !important;
+    }}
+    
+    /* Remove border from metric columns */
+    div[data-testid="stHorizontalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="column"] {{
+        border-right: none !important;
+        padding-right: 0 !important;
+    }}
+
+    /* Typography */
+    h1 {{ color: {theme['text_primary']}; font-weight: 700; letter-spacing: -0.03em; margin-top: 0 !important; font-size: 1.8rem !important; }}
+    h2, h3 {{ color: {theme['text_primary']}; font-weight: 600; font-size: 1.1rem !important; }}
+    p, label {{ color: {theme['text_secondary']}; font-size: 0.9rem; }}
+    .stCaption {{ margin-bottom: 0px !important; color: {theme['text_secondary']} !important; font-size: 0.8rem; }}
+
+    /* Panels & Cards */
+    .settings-panel {{
+        background-color: {theme['bg_panel']};
+        border-radius: 12px;
         border: 1px solid {theme['border']};
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        padding: 1.25rem;
     }}
-    .driver-card:hover {{border-color: {theme['accent_text']};}}
-    
-    .driver-name {{font-size: 0.9rem; font-weight: 600; color: {theme['text_primary']}; margin-bottom: 0.1rem;}}
-    .team-name {{color: {theme['text_secondary']}; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.02em;}}
-    
-    .prob-value {{color: {theme['accent_text']}; font-size: 1rem; font-weight: 600;}}
-    .prob-bar-bg {{background: {theme['border']}; height: 3px; border-radius: 2px; margin-top: 0.2rem;}}
-    .prob-bar-fill {{background: {theme['accent_text']}; height: 100%; border-radius: 2px;}}
-    
+    .driver-card {{
+        background-color: {theme['card_bg']};
+        border-radius: 10px;
+        border: 1px solid {theme['border']};
+        padding: 0.8rem 1rem; /* Compact padding */
+        margin-bottom: 0.6rem;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }}
+
+    /* Toggle Switch */
+    div[data-testid="stToggle"] label div:first-child {{
+        border: 1px solid {theme['text_primary']} !important;
+        background-color: {theme['toggle_track']} !important; 
+        border-radius: 20px !important;
+    }}
+    div[data-testid="stToggle"] label div:first-child > div {{
+        background-color: {theme['text_primary']} !important;
+    }}
+
+    /* Buttons & Download Buttons */
     .stButton > button, .stDownloadButton > button {{
-        background-color: {theme['button_bg']} !important;
-        color: {theme['button_text']} !important;
-        border: 2px solid {theme['button_bg']} !important;
-        padding: 0.75rem 1.5rem;
+        width: 100%;
         border-radius: 8px;
+        border: 1px solid {theme['text_primary']}; 
+        padding: 0.5rem 1rem; /* Compact padding */
         font-weight: 600;
-        box-shadow: 0 2px 4px {theme['shadow']};
+        font-size: 0.9rem;
+        background-color: {theme['text_primary']} !important;
+        color: {theme['bg_main']} !important; 
+        transition: opacity 0.2s;
     }}
-    .stButton > button *, .stDownloadButton > button * {{color: {theme['button_text']} !important;}}
-    .stButton > button:hover, .stDownloadButton > button:hover {{opacity: 0.85 !important;}}
+    .stButton > button:hover, .stDownloadButton > button:hover {{
+        opacity: 0.85;
+    }}
     
-    [data-testid="stMetric"] {{background-color: {theme['metric_bg']}; border: 1px solid {theme['metric_border']}; padding: 0.5rem; border-radius: 8px; box-shadow: 0 1px 2px 0 {theme['shadow']};}}
-    [data-testid="stMetricLabel"] {{color: {theme['text_secondary']} !important; font-size: 0.75rem !important;}}
-    [data-testid="stMetricValue"] {{color: {theme['text_primary']} !important; font-size: 1.5rem !important;}}
-    
-    .stSelectbox > div > div {{background-color: {theme['card_bg']}; color: {theme['text_primary']}; border: 1px solid {theme['border']};}}
-    .stSelectbox > div > div svg {{fill: {theme['text_primary']} !important;}}
-    
-    .stSlider [data-testid="stTickBarMin"], .stSlider [data-testid="stTickBarMax"] {{color: {theme['text_primary']} !important;}}
-    
-    #MainMenu, footer, header {{visibility: hidden;}}
+    .stButton > button *, .stButton > button p, 
+    .stDownloadButton > button *, .stDownloadButton > button p {{
+        color: {theme['bg_main']} !important;
+    }}
 
-</style>""", unsafe_allow_html=True)
+    /* Progress Bar */
+    .prob-bar-bg {{
+        margin-top: 0.4rem;
+        height: 5px;
+        border-radius: 3px;
+        background-color: {theme['bg_panel']};
+        overflow: hidden;
+    }}
+    .prob-bar-fill {{
+        height: 100%;
+        border-radius: 3px;
+        background-color: {theme['accent']};
+    }}
 
-st.title("Singapore Grand Prix Predictor")
-st.subheader("Machine learning predictions for top 5 finishers")
+    /* Metrics */
+    [data-testid="stMetric"] {{
+        background-color: {theme['bg_panel']};
+        border-radius: 10px;
+        border: 1px solid {theme['border']};
+        padding: 0.8rem;
+    }}
+    [data-testid="stMetricLabel"] {{ color: {theme['text_secondary']}; font-size: 0.8rem; }}
+    [data-testid="stMetricValue"] {{ color: {theme['text_primary']}; font-size: 1.6rem; }}
 
+    /* Inputs */
+    .stSelectbox div[data-baseweb="select"] > div {{
+        background-color: {theme['bg_main']};
+        color: {theme['text_primary']};
+        border-color: {theme['border']};
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }}
+    .stSelectbox svg {{ fill: {theme['text_primary']}; }}
+
+    /* Slider Fixes */
+    /* Target the label above the slider */
+    div[data-testid="stSlider"] label p {{
+        font-size: 0.85rem !important;
+    }}
+    /* Target the thumb value (if visible in this theme) */
+    div[data-testid="stSlider"] div[data-testid="stMarkdownContainer"] p {{
+        font-size: 0.85rem !important;
+    }}
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {{
+        .block-container {{
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }}
+        .main {{
+            padding: 0 !important;
+        }}
+    }}
+
+    /* Hide Streamlit Elements */
+    #MainMenu, footer, header {{ visibility: hidden; }}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# ---------- 4. DATA LOGIC ----------
 @st.cache_data
-def load_training_data():
+def load_data():
     return pd.read_csv(DATA_DIR / "training_dataset.csv")
 
 @st.cache_data
-def get_latest_drivers():
+def get_prediction_context():
     df = pd.read_csv(DATA_DIR / "training_dataset.csv")
-    latest_year = df['year'].max()
-    prediction_year = latest_year + 1
-    return df[df['year'] == latest_year].copy(), prediction_year
+    latest_year = int(df["year"].max())
+    latest_data = df[df["year"] == latest_year].copy()
+    return latest_data, latest_year
 
 @st.cache_resource
 def train_model(model_type, X, y, **params):
     if model_type == "Random Forest":
-        model = RandomForestClassifier(**params, random_state=42)
+        rf_params = {k: v for k, v in params.items() if k in ['n_estimators', 'max_depth']}
+        model = RandomForestClassifier(**rf_params, random_state=42)
     elif model_type == "XGBoost":
-        model = XGBClassifier(**params, eval_metric="logloss", random_state=42, verbosity=0)
+        xgb_params = {k: v for k, v in params.items() if k in ['n_estimators', 'learning_rate', 'max_depth']}
+        model = XGBClassifier(**xgb_params, eval_metric="logloss", random_state=42, verbosity=0)
     elif model_type == "Logistic Regression":
-        model = LogisticRegression(**params, random_state=42)
-    else:
-        model = SVC(**params, random_state=42)
+        lr_params = {k: v for k, v in params.items() if k in ['C', 'max_iter']}
+        model = LogisticRegression(**lr_params, random_state=42)
+    elif model_type == "SVM":
+        svc_params = {k: v for k, v in params.items() if k in ['C', 'kernel']}
+        model = SVC(**svc_params, probability=True, random_state=42)
+    
     model.fit(X, y)
     return model
 
+# ---------- 5. MAIN APP ----------
 try:
-    training_data = load_training_data()
-    latest_race, latest_year = get_latest_drivers()
-    
-    feature_cols = ['driver_sg_races', 'driver_sg_wins', 'driver_sg_avg_finish',
-                    'driver_sg_best_finish', 'driver_sg_podiums', 'driver_sg_recent_avg',
-                    'driver_sg_recent_podiums', 'team_sg_races', 'team_sg_wins',
-                    'team_sg_winrate', 'team_sg_avg_finish', 'team_sg_podiums']
-    
-    with st.sidebar:
-        st.markdown("### Model Configuration")
-        model_type = st.selectbox("Select Model", ["XGBoost", "Random Forest", "Logistic Regression", "SVM"])
-        
-        if model_type == "XGBoost":
-            learning_rate = st.slider("Learning Rate", 0.05, 0.2, 0.1, 0.01)
-            params = {'n_estimators': 100, 'learning_rate': learning_rate, 'max_depth': 6}
-        elif model_type == "Random Forest":
-            n_trees = st.slider("Number of Trees", 100, 300, 150, 50)
-            params = {'n_estimators': n_trees, 'max_depth': 10}
-        elif model_type == "Logistic Regression":
-            c_value = st.slider("Regularization (C)", 0.01, 10.0, 1.0, 0.1)
-            params = {'C': c_value, 'max_iter': 1000}
-        else:
-            c_value = st.slider("C Parameter", 0.1, 10.0, 1.0, 0.1)
-            params = {'C': c_value, 'kernel': 'rbf', 'probability': True}
-        
-        st.markdown("---")
-        train_button = st.button("Predict Results", use_container_width=True)
+    training_data = load_data()
+    latest_race, latest_year = get_prediction_context()
 
-    X, y = training_data[feature_cols], training_data['win']
+    feature_cols = [
+        "driver_sg_races", "driver_sg_wins", "driver_sg_avg_finish",
+        "driver_sg_best_finish", "driver_sg_podiums", "driver_sg_recent_avg",
+        "driver_sg_recent_podiums", "team_sg_races", "team_sg_wins",
+        "team_sg_winrate", "team_sg_avg_finish", "team_sg_podiums",
+    ]
+
+    X = training_data[feature_cols]
+    y = training_data["win"]
     X_latest = latest_race[feature_cols]
-    
-    if train_button:
-        with st.spinner("Analyzing historical data and generating predictions..."):
-            model = train_model(model_type, X, y, **params)
-            latest_probs = model.predict_proba(X_latest)[:, 1]
-            
-            st.session_state.update({'trained': True, 'predictions': latest_probs,
-                                     'model_type': model_type})
-            st.rerun()
-    
-    if st.session_state.get('trained', False):
-        results = latest_race[['driver_name', 'team_name']].copy()
-        results['win_probability'] = st.session_state['predictions'] * 100
-        results = results.sort_values('win_probability', ascending=False).reset_index(drop=True)
+
+    # --- LAYOUT ---
+    col_settings, col_results = st.columns([1, 2.5], gap="large")
+
+    # --- LEFT PANEL: CONFIGURATION ---
+    with col_settings:
+        st.markdown(f"""
+        <div>
+            <h3 style="margin-top:0; margin-bottom: 1rem;">Configuration</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown(f"### Predicted Top 5 - {latest_year} Singapore GP")
-        st.caption(f"Based on {st.session_state.get('model_type')} analysis of {training_data['year'].nunique()} years of historical data (2009-2024)")
+        # Appearance
+        st.caption("APPEARANCE")
+        st.checkbox("Dark Mode", key="dark_mode")
         
-        top_5 = results.head(5)
-        max_prob = top_5['win_probability'].max()
+        # Divider
+        st.markdown(f"<div style='margin: 4px 0; border-top: 1px solid {theme['border']};'></div>", unsafe_allow_html=True)
+
+        # Model Selection
+        st.caption("MODEL")
+        model_type = st.selectbox(
+            "Select Model", 
+            ["XGBoost", "Random Forest", "Logistic Regression", "SVM"], 
+            label_visibility="collapsed"
+        )
         
-        for idx, row in top_5.iterrows():
-            prob = row['win_probability']
-            bar_width = (prob / max_prob) * 100
-            
-            st.markdown(f"""
-            <div class="driver-card">
-                <div style="display: flex; align-items: center; flex-grow: 1;">
-                    <div class="driver-info">
-                        <div class="driver-name">{row['driver_name']}</div>
-                        <div class="team-name">{row['team_name']}</div>
-                    </div>
-                </div>
-                <div class="prob-container">
-                    <div class="prob-value">{prob:.1f}%</div>
-                    <div class="prob-bar-bg">
-                        <div class="prob-bar-fill" style="width: {bar_width}%"></div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        # Parameters
+        st.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
+        st.caption("TUNING")
         
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            if st.button("Reset Analysis"):
-                st.session_state['trained'] = False
+        params = {}
+        if model_type == "XGBoost":
+            lr = st.slider("Learning Rate", 0.05, 0.2, 0.1, 0.01)
+            params = {"n_estimators": 100, "learning_rate": lr, "max_depth": 6}
+        elif model_type == "Random Forest":
+            trees = st.slider("Trees", 100, 300, 150, 50)
+            params = {"n_estimators": trees, "max_depth": 10}
+        elif model_type == "Logistic Regression":
+            c_val = st.slider("Regularization (C)", 0.01, 10.0, 1.0, 0.1)
+            params = {"C": c_val, "max_iter": 1000}
+        else:
+            c_val = st.slider("C Parameter", 0.1, 10.0, 1.0, 0.1)
+            params = {"C": c_val, "kernel": "rbf", "probability": True}
+        
+        st.markdown("<div style='margin: 1.5rem 0'></div>", unsafe_allow_html=True)
+        
+        # Actions
+        train_clicked = st.button("Generate Prediction", use_container_width=True)
+
+        if st.session_state.get("trained", False):
+            if st.button("Reset View", use_container_width=True):
+                st.session_state["trained"] = False
                 st.rerun()
-        with col2:
-            st.download_button("Download Full Analysis Report", results.to_csv(index=False),
-                               f"singapore_gp_predictions_{latest_year}.csv", "text/csv", use_container_width=True)
+
+    # --- RIGHT PANEL: DASHBOARD ---
+    with col_results:
         
-    else:
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.metric("Historical Races", str(training_data['year'].nunique()))
-        with c2:
-            st.metric("Drivers Analyzed", str(training_data['driver_name'].nunique()))
-        with c3:
-            st.metric("Teams Analyzed", str(training_data['team_name'].nunique()))
+        st.title("Singapore GP Predictor")
+        st.markdown(f"AI-Driven Race Analysis based on **{latest_year} Season Data**.")
+        st.markdown(f"<div style='margin-bottom: 2rem; border-top: 1px solid {theme['border']};'></div>", unsafe_allow_html=True)
         
-        st.markdown("### Recent Singapore GP Winners")
-        winners = training_data[training_data['win'] == 1].sort_values('year', ascending=False).head(3)
-        
-        for _, row in winners.iterrows():
-            st.markdown(f"""
-            <div style="padding: 0.5rem 0.75rem; background: {theme['card_bg']}; border-radius: 8px; margin-bottom: 0.3rem; border: 1px solid {theme['border']}; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <span style="font-weight: 600; color: {theme['text_primary']}; font-size: 0.9rem;">{int(row['year'])}</span>
-                    <span style="margin: 0 0.75rem; color: {theme['border']};">|</span>
-                    <span style="color: {theme['text_primary']}; font-size: 0.9rem;">{row['driver_name']}</span>
+        if train_clicked:
+            with st.spinner("Processing..."):
+                model = train_model(model_type, X, y, **params)
+                probs = model.predict_proba(X_latest)[:, 1]
+                st.session_state.update({
+                    "trained": True, 
+                    "predictions": probs, 
+                    "current_model": model_type
+                })
+                st.rerun()
+
+        # VIEW A: Results
+        if st.session_state.get("trained", False):
+            st.subheader("Prediction Results")
+            st.caption(f"Model: {st.session_state['current_model']} | Ranked by Probability")
+            
+            res_df = latest_race[["driver_name", "team_name"]].copy()
+            res_df["win_prob"] = st.session_state["predictions"] * 100
+            res_df = res_df.sort_values("win_prob", ascending=False).reset_index(drop=True)
+            
+            top_5 = res_df.head(5)
+            max_val = top_5["win_prob"].max()
+
+            for _, row in top_5.iterrows():
+                pct = row['win_prob']
+                width = (pct / max_val) * 100 if max_val > 0 else 0
+                
+                st.markdown(f"""
+                <div class="driver-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: {theme['text_primary']}">{row['driver_name']}</div>
+                            <div style="font-size: 0.85rem; color: {theme['text_secondary']}; text-transform: uppercase;">{row['team_name']}</div>
+                        </div>
+                        <div style="font-size: 1.4rem; font-weight: 700; color: {theme['text_primary']}">{pct:.1f}%</div>
+                    </div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill" style="width: {width}%"></div>
+                    </div>
                 </div>
-                <div style="color: {theme['text_secondary']}; font-size: 0.75rem;">{row['team_name']}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.download_button("Download Report CSV", res_df.to_csv(index=False), "prediction_report.csv", "text/csv")
 
-except FileNotFoundError:
-    st.error("Data not found. Please run the data pipeline scripts first.")
+        # VIEW B: Dashboard
+        else:
+            st.subheader("Historical Overview")
+            
+            m1, m2, m3 = st.columns(3)
+            with m1: st.metric("Total Races", str(training_data["year"].nunique()))
+            with m2: st.metric("Drivers", str(training_data["driver_name"].nunique()))
+            with m3: st.metric("Teams", str(training_data["team_name"].nunique()))
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.subheader("Recent Winners")
+            winners = training_data[training_data["win"] == 1].sort_values("year", ascending=False).head(4)
+            
+            for _, row in winners.iterrows():
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background-color: {theme['bg_panel']}; border-radius: 8px; margin-bottom: 0.8rem; border: 1px solid {theme['border']};">
+                   <div>
+                       <span style="font-weight: 700; color: {theme['text_primary']}; font-size: 1.1rem; margin-right: 1.5rem;">{int(row['year'])}</span>
+                       <span style="color: {theme['text_primary']}; font-weight: 600;">{row['driver_name']}</span>
+                   </div>
+                   <div style="color: {theme['text_secondary']}; font-size: 0.9rem; text-transform: uppercase;">{row['team_name']}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-st.markdown("<div style='margin-top: 4rem; text-align: center; color: #999; font-size: 0.8rem;'>F1 Singapore GP Predictor • Powered by Machine Learning</div>", unsafe_allow_html=True)
+except Exception as e:
+    st.error(f"System Error: {str(e)}")
+    st.info("Please verify the dataset exists in the 'data' directory.")
