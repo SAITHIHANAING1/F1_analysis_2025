@@ -77,11 +77,31 @@ st.markdown(
         padding-right: 0 !important;
     }}
 
-    /* Typography */
-    h1 {{ color: {theme['text_primary']}; font-weight: 700; letter-spacing: -0.03em; margin-top: 0 !important; font-size: 1.8rem !important; }}
-    h2, h3 {{ color: {theme['text_primary']}; font-weight: 600; font-size: 1.1rem !important; }}
-    p, label {{ color: {theme['text_secondary']}; font-size: 0.9rem; }}
-    .stCaption {{ margin-bottom: 0px !important; color: {theme['text_secondary']} !important; font-size: 0.8rem; }}
+    /* Typography - FIXED WITH !important */
+    h1 {{ 
+        color: {theme['text_primary']} !important; 
+        font-weight: 700; 
+        letter-spacing: -0.03em; 
+        margin-top: 0 !important; 
+        font-size: 1.8rem !important; 
+    }}
+    
+    h2, h3 {{ 
+        color: {theme['text_primary']} !important; 
+        font-weight: 600; 
+        font-size: 1.1rem !important; 
+    }}
+    
+    p, label, span, div {{ 
+        color: {theme['text_secondary']}; 
+        font-size: 0.9rem; 
+    }}
+    
+    .stCaption {{ 
+        margin-bottom: 0px !important; 
+        color: {theme['text_secondary']} !important; 
+        font-size: 0.8rem; 
+    }}
 
     /* Panels & Cards */
     .settings-panel {{
