@@ -16,22 +16,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---------- 2. THEME ENGINE ----------
-if "dark_mode" not in st.session_state:
-    st.session_state["dark_mode"] = False
-
-dark_mode = st.session_state["dark_mode"]
-
-# Monochrome Theme Palette
+# ---------- 2. DARK THEME ----------
 theme = {
-    "bg_main": "#000000" if dark_mode else "#ffffff",
-    "bg_panel": "#111111" if dark_mode else "#f5f5f5",
-    "card_bg": "#111111" if dark_mode else "#ffffff",
-    "text_primary": "#ffffff" if dark_mode else "#111111",
-    "text_secondary": "#cccccc" if dark_mode else "#555555",
-    "border": "#333333" if dark_mode else "#e0e0e0",
-    "accent": "#ffffff" if dark_mode else "#000000",
-    "toggle_track": "#333333" if dark_mode else "#e0e0e0", 
+    "bg_main": "#000000",
+    "bg_panel": "#111111",
+    "card_bg": "#111111",
+    "text_primary": "#ffffff",
+    "text_secondary": "#cccccc",
+    "border": "#333333",
+    "accent": "#ffffff"
 }
 
 
@@ -77,11 +70,35 @@ st.markdown(
         padding-right: 0 !important;
     }}
 
-    /* Typography */
-    h1 {{ color: {theme['text_primary']}; font-weight: 700; letter-spacing: -0.03em; margin-top: 0 !important; font-size: 1.8rem !important; }}
-    h2, h3 {{ color: {theme['text_primary']}; font-weight: 600; font-size: 1.1rem !important; }}
-    p, label {{ color: {theme['text_secondary']}; font-size: 0.9rem; }}
-    .stCaption {{ margin-bottom: 0px !important; color: {theme['text_secondary']} !important; font-size: 0.8rem; }}
+    /* Typography - FIXED WITH !important */
+    h1 {{ 
+        color: {theme['text_primary']} !important; 
+        font-weight: 700; 
+        letter-spacing: -0.03em; 
+        margin-top: 0 !important; 
+        font-size: 1.8rem !important; 
+    }}
+    
+    h2, h3 {{ 
+        color: {theme['text_primary']} !important; 
+        font-weight: 600; 
+        font-size: 1.1rem !important; 
+    }}
+    
+    h1 a, h2 a, h3 a {{
+        display: none !important;
+    }}
+    
+    p, label, span, div {{ 
+        color: {theme['text_secondary']}; 
+        font-size: 0.9rem; 
+    }}
+    
+    .stCaption {{ 
+        margin-bottom: 0px !important; 
+        color: {theme['text_secondary']} !important; 
+        font-size: 0.8rem; 
+    }}
 
     /* Panels & Cards */
     .settings-panel {{
@@ -97,16 +114,6 @@ st.markdown(
         padding: 0.8rem 1rem; /* Compact padding */
         margin-bottom: 0.6rem;
         transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }}
-
-    /* Toggle Switch */
-    div[data-testid="stToggle"] label div:first-child {{
-        border: 1px solid {theme['text_primary']} !important;
-        background-color: {theme['toggle_track']} !important; 
-        border-radius: 20px !important;
-    }}
-    div[data-testid="stToggle"] label div:first-child > div {{
-        background-color: {theme['text_primary']} !important;
     }}
 
     /* Buttons & Download Buttons */
@@ -249,13 +256,6 @@ try:
         </div>
         """, unsafe_allow_html=True)
         
-        # Appearance
-        st.caption("APPEARANCE")
-        st.checkbox("Dark Mode", key="dark_mode")
-        
-        # Divider
-        st.markdown(f"<div style='margin: 4px 0; border-top: 1px solid {theme['border']};'></div>", unsafe_allow_html=True)
-
         # Model Selection
         st.caption("MODEL")
         model_type = st.selectbox(
